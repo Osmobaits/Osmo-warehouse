@@ -55,7 +55,7 @@ def logout():
 @app.route("/categories", methods=["GET"])
 def get_categories():
     categories = Category.query.all()
-    return jsonify([{"id": c.id, "name": c.name} for c in categories])
+    return jsonify([{"id": c.id, "name": f"{c.name} (Cat. ID: {c.id})"} for c in categories])
 
 # 📌 Pobieranie produktów pogrupowanych według kategorii
 @app.route("/products", methods=["GET"])
@@ -64,7 +64,7 @@ def get_products():
     products_by_category = {}
     
     for category in categories:
-        products_by_category[category.name] = [
+        products_by_category[f"{category.name} (Cat. ID: {category.id})"] = [
             {"id": p.id, "name": p.name, "quantity": p.quantity, "category_id": p.category_id}
             for p in category.products
         ]
