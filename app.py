@@ -114,7 +114,10 @@ def update_product(product_id):
     product = Product.query.get_or_404(product_id)
     product.name = data.get("name")
     product.quantity = data.get("quantity")
-    product.category_id = data.get("category_id")
+    
+    if "category_id" in data and data.get("category_id") is not None:
+        product.category_id = data.get("category_id")
+    
     db.session.commit()
     return jsonify({"message": "Product updated successfully!"})
 
