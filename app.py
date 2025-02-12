@@ -32,9 +32,8 @@ with app.app_context():
 # 📌 Strona główna (z zabezpieczeniem logowania)
 @app.route("/")
 def index():
-    if "user" not in session:
-        return render_template("index.html", logged_in=False)
-    return render_template("index.html", logged_in=True)
+    logged_in = "user" in session
+    return render_template("index.html", logged_in=logged_in)
 
 # 📌 Logowanie użytkownika
 @app.route("/login", methods=["POST"])
@@ -42,14 +41,15 @@ def login():
     data = request.json
     if data.get("username") == ADMIN_USERNAME and data.get("password") == ADMIN_PASSWORD:
         session["user"] = ADMIN_USERNAME  # Zapisanie sesji
-        return jsonify({"redirect": url_for("index")})
+        session.modified = True  # Wymuszenie zapisu sesji
+        return jsonify({"redirect": url_for("index"), "message": "Login successful"})
     return jsonify({"message": "Invalid credentials"}), 401
 
 # 📌 Wylogowanie użytkownika
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
-    session.pop("user", None)
-    return jsonify({"redirect": url_for("index")})
+    session.clear()  # Całkowite usunięcie sesji
+    return jsonify({"message": "Logged out successfully!", "redirect": url_for("index")})
 
 # 📌 Pobieranie kategorii
 @app.route("/categories", methods=["GET"])
@@ -64,9 +64,10 @@ def get_products():
     products_by_category = {}
     
     for category in categories:
+        products = Product.query.filter_by(category_id=category.id).all()
         products_by_category[f"{category.name} (Cat. ID: {category.id})"] = [
             {"id": p.id, "name": p.name, "quantity": p.quantity, "category_id": p.category_id}
-            for p in category.products
+            for p in products
         ]
     
     return jsonify(products_by_category)
@@ -93,7 +94,7 @@ def update_category(category_id):
 @app.route("/category/<int:category_id>", methods=["DELETE"])
 def delete_category(category_id):
     category = Category.query.get_or_404(category_id)
-    Product.query.filter_by(category_id=category_id).delete()  # Usunięcie produktów w kategorii
+    Product.query.filter_by(category_id=category_id).delete()
     db.session.delete(category)
     db.session.commit()
     return jsonify({"message": "Category deleted successfully!"})
@@ -102,10 +103,22 @@ def delete_category(category_id):
 @app.route("/product", methods=["POST"])
 def add_product():
     data = request.json
-    new_product = Product(name=data.get("name"), quantity=data.get("quantity"), category_id=data.get("category_id"))
+    
+    # Walidacja danych wejściowych
+    if not data.get("name") or not isinstance(data.get("quantity"), int) or not isinstance(data.get("category_id"), int):
+        return jsonify({"message": "Invalid data! Ensure all fields are filled correctly."}), 400
+
+    new_product = Product(
+        name=data["name"].strip(),
+        quantity=int(data["quantity"]),
+        category_id=int(data["category_id"])
+    )
+
     db.session.add(new_product)
     db.session.commit()
+    
     return jsonify({"message": "Product added successfully!"})
+
 
 # 📌 Edycja produktu
 @app.route("/product/<int:product_id>", methods=["PUT"])

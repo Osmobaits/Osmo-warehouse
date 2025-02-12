@@ -8,7 +8,7 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         .category-container {
-            margin-bottom: 30px; /* Większy odstęp między kategoriami */
+            margin-bottom: 30px;
             padding: 15px;
             border: 1px solid #ccc;
             border-radius: 10px;
@@ -59,6 +59,33 @@
     {% endif %}
 
     <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                window.location.href = data.redirect;
+            } else {
+                alert("Login failed: " + data.message);
+            }
+        }
+
+        async function logout() {
+            const response = await fetch('/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+            const data = await response.json();
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        }
+
         async function fetchCategories() {
             const response = await fetch('/categories');
             const categories = await response.json();
@@ -135,21 +162,6 @@
             }
         }
 
-        async function addProduct() {
-            const name = document.getElementById('name').value;
-            const quantity = document.getElementById('quantity').value;
-            const category_id = document.getElementById('category-select').value;
-            if (!name || !quantity || !category_id) return alert("All fields must be filled!");
-            await fetch('/product', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, quantity, category_id })
-            });
-            document.getElementById('name').value = "";
-            document.getElementById('quantity').value = "";
-            fetchProducts();
-        }
-
         async function deleteProduct(id) {
             if (confirm("Are you sure you want to delete this product?")) {
                 await fetch(`/product/${id}`, { method: 'DELETE' });
@@ -191,6 +203,30 @@
                 fetchProducts();
             {% endif %}
         });
+		async function addProduct() {
+        const name = document.getElementById('name').value;
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const category_id = parseInt(document.getElementById('category-select').value);
+        
+        if (!name || isNaN(quantity) || isNaN(category_id)) {
+            alert("All fields must be filled correctly!");
+            return;
+        }
+
+        const response = await fetch('/product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, quantity, category_id })
+        });
+
+        if (response.ok) {
+            document.getElementById('name').value = "";
+            document.getElementById('quantity').value = "";
+            fetchProducts();
+        } else {
+            alert("Failed to add product.");
+        }
+    }
     </script>
 
 </body>
