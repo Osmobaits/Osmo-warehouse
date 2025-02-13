@@ -1,12 +1,25 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+import os
+
+# Rozwiązanie problemu z kasowaniem bazy:
+# - Włączono automatyczne zatwierdzanie transakcji.
+# - Dodano mechanizm tworzenia katalogu na bazę.
+
+# Ścieżka do bazy (trwała lokalnie i na serwerze)
+db_dir = os.path.join(os.getcwd(), 'data')
+os.makedirs(db_dir, exist_ok=True)
+db_path = os.path.join(db_dir, 'warehouse.db')
 
 app = Flask(__name__, template_folder="templates")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///warehouse.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "supersecretkey"  # Klucz sesji
+app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = True  # Automatyczne zatwierdzanie transakcji
+app.config["SECRET_KEY"] = "supersecretkey"
 
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
@@ -24,6 +37,11 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id', ondelete='CASCADE'), nullable=False)
     category = db.relationship("Category", backref=db.backref("products", cascade="all, delete-orphan", lazy=True))
+
+@app.route("/")
+def index():
+    logged_in = "user" in session
+    return render_template("index.html", logged_in=logged_in)
 
 # 📌 Tworzenie bazy danych
 with app.app_context():
