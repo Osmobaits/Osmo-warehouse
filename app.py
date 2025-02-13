@@ -1,12 +1,31 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+import os
+import sqlite3
+
+# Obsługa ścieżek – lokalnie i na serwerze Render z trwałym przechowywaniem bazy
+if os.getenv('RENDER'):
+    db_path = '/persistent/warehouse.db'
+else:
+    db_path = os.path.join(os.getcwd(), 'warehouse.db')
+
+# Upewnienie się, że katalog do bazy istnieje
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
 app = Flask(__name__, template_folder="templates")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///warehouse.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "supersecretkey"  # Klucz sesji
+app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = True  # Zapobiega utracie danych
+app.config["SECRET_KEY"] = "supersecretkey"
 
-db = SQLAlchemy(app)
+# Inicjalizacja bazy danych
+try:
+    db = SQLAlchemy(app)
+    with app.app_context():
+        db.create_all()
+        print(f"Baza danych została utworzona lub załadowana z: {db_path}")
+except Exception as e:
+    print(f"Błąd podczas inicjalizacji bazy danych: {e}")
 
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
@@ -24,6 +43,15 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id', ondelete='CASCADE'), nullable=False)
     category = db.relationship("Category", backref=db.backref("products", cascade="all, delete-orphan", lazy=True))
+
+# Usuń duplikat endpointu, aby uniknąć konfliktu
+if 'index' in app.view_functions:
+    app.view_functions.pop('index')
+
+@app.route("/home")
+def home():
+    logged_in = "user" in session
+    return render_template("index.html", logged_in=logged_in)
 
 # 📌 Tworzenie bazy danych
 with app.app_context():
