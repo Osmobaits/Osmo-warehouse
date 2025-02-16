@@ -1,18 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
-from urllib.parse import urlparse
 
 app = Flask(__name__, template_folder="templates")
 
-# Parsujemy DATABASE_URL, aby naprawić błąd związany z 'port'
-url = urlparse(os.getenv("DATABASE_URL", ""))
-if not url.scheme:
-    raise ValueError("DATABASE_URL is required to avoid database resets on Render.com.")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"postgresql://{url.username}:{url.password}@{url.hostname}:{url.port}{url.path}"
-)
+# Poprawione pobieranie DATABASE_URL bez błędu 'port'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+if not app.config["SQLALCHEMY_DATABASE_URI"]:
+    raise ValueError("DATABASE_URL is required.")
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
