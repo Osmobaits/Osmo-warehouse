@@ -14,6 +14,20 @@
             border-radius: 10px;
             background-color: #f8f9fa;
         }
+
+        /* Zwiększenie przycisków na urządzeniach mobilnych */
+        @media (max-width: 767px) {
+            .btn-sm {
+                padding: 10px 20px;
+                font-size: 16px;
+                margin: 5px;
+            }
+
+            .d-flex.gap-1 {
+                flex-direction: column;
+                gap: 10px !important;
+            }
+        }
     </style>
 </head>
 <body class="container mt-4">
