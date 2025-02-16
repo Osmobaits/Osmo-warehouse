@@ -9,6 +9,10 @@ db_url = os.getenv("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
 
+# Usunięcie potencjalnego 'port' jeśli jest błędny
+if db_url and ':port' in db_url:
+    db_url = db_url.replace(':port', '')
+
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise ValueError("DATABASE_URL is required.")
@@ -16,11 +20,10 @@ if not app.config["SQLALCHEMY_DATABASE_URI"]:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
-# Instalacja brakującego modułu psycopg2 w requirements.txt jest wymagana
-# Dodaj do pliku requirements.txt:
-# psycopg2-binary==2.9.3
-
-import psycopg2  # Usuń warunek importu, dodaj psycopg2-binary do requirements.txt
+try:
+    import psycopg2
+except ImportError:
+    pass  # Upewnij się, że psycopg2-binary jest w requirements.txt
 
 db = SQLAlchemy(app)
 
