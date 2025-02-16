@@ -4,8 +4,12 @@ import os
 
 app = Flask(__name__, template_folder="templates")
 
-# Użycie bezpośrednio os.getenv bez parsowania, aby uniknąć błędu 'port'
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# Zamiana protokołu na 'postgresql+psycopg2' jeśli jest 'postgres'
+db_url = os.getenv("DATABASE_URL")
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise ValueError("DATABASE_URL is required.")
 
@@ -16,7 +20,6 @@ db = SQLAlchemy(app)
 
 with app.app_context():
     db.create_all()
-
 
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
