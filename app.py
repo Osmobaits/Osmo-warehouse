@@ -10,7 +10,7 @@ db = SQLAlchemy(app)
 
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "password"
+ADMIN_PASSWORD = "magazyn12"
 
 # 📌 Model kategorii
 class Category(db.Model):
