@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+if __name__ == "__main__":
+      app.run(host='0.0.0.0', port=8080)
 import os
 
 app = Flask(__name__, template_folder="templates")
