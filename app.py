@@ -1,29 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-if __name__ == "__main__":
-      app.run(host='0.0.0.0', port=8080)
 import os
 
 app = Flask(__name__, template_folder="templates")
-
-# Użyj zmiennej środowiskowej DATABASE_URL
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-if not app.config["SQLALCHEMY_DATABASE_URI"]:
-    raise ValueError("DATABASE_URL is required.")
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
-import psycopg2  # psycopg2-binary musi być w requirements.txt
-
-db = SQLAlchemy(app)
-
-with app.app_context():
-    db.create_all()
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
-    
+db = SQLAlchemy(app)  
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "password"
