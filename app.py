@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-import os
 
 app = Flask(__name__, template_folder="templates")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///warehouse.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
+app.config["SECRET_KEY"] = "supersecretkey"  # Klucz sesji
 
-db = SQLAlchemy(app)  
+db = SQLAlchemy(app)
+
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "password"
