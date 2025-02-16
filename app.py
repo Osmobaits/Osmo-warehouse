@@ -1,29 +1,16 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__, template_folder="templates")
 
-# Zamiana protokołu na 'postgresql+psycopg2' jeśli jest 'postgres'
-db_url = os.getenv("DATABASE_URL")
-if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
-
-# Usunięcie potencjalnego 'port' jeśli jest błędny
-if db_url and ':port' in db_url:
-    db_url = db_url.replace(':port', '')
-
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+# Konfiguracja dla Railway (automatyczne zmiany w DATABASE_URL nie są potrzebne, Railway generuje poprawny URL)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise ValueError("DATABASE_URL is required.")
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
-try:
-    import psycopg2
-except ImportError:
-    pass  # Upewnij się, że psycopg2-binary jest w requirements.txt
+import psycopg2  # Upewnij się, że psycopg2-binary jest w requirements.txt
 
 db = SQLAlchemy(app)
 
