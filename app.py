@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
-from urllib.parse import urlparse
 
 app = Flask(__name__, template_folder="templates")
 
-# Parsowanie DATABASE_URL, aby uniknąć błędu 'port'
-url = urlparse(os.getenv("DATABASE_URL"))
-if not url.scheme:
+# Użycie bezpośrednio os.getenv bez parsowania, aby uniknąć błędu 'port'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise ValueError("DATABASE_URL is required.")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{url.username}:{url.password}@{url.hostname}:{int(url.port) if url.port else 5432}{url.path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
@@ -18,6 +16,7 @@ db = SQLAlchemy(app)
 
 with app.app_context():
     db.create_all()
+
 
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
