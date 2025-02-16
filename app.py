@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, template_folder="templates")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///warehouse.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://magazyn_user:FH1mT4UHJvVrqmXXfQz6koc6FnVB3szQ@dpg-cuovb9ggph6c73dqpvc0-a/magazyn"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "supersecretkey"  # Klucz sesji
 
