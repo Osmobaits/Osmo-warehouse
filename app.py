@@ -4,10 +4,13 @@ import os
 
 app = Flask(__name__, template_folder="templates")
 
-# Zamiana protokołu na 'postgresql+psycopg2' jeśli jest 'postgres'
+# Zamiana protokołu i usuwanie 'port' jeśli jest błędny
 db_url = os.getenv("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+
+# Usunięcie błędnego portu
+db_url = db_url.replace(':port', '')
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
