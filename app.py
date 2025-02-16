@@ -1,8 +1,10 @@
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__, template_folder="templates")
 
-# Konfiguracja dla Railway (automatyczne zmiany w DATABASE_URL nie są potrzebne, Railway generuje poprawny URL)
+# Użyj zmiennej środowiskowej DATABASE_URL
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise ValueError("DATABASE_URL is required.")
@@ -10,12 +12,15 @@ if not app.config["SQLALCHEMY_DATABASE_URI"]:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
-import psycopg2  # Upewnij się, że psycopg2-binary jest w requirements.txt
+import psycopg2  # psycopg2-binary musi być w requirements.txt
 
 db = SQLAlchemy(app)
 
 with app.app_context():
     db.create_all()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
     
 # Ustalony login i hasło
 ADMIN_USERNAME = "admin"
