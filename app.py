@@ -4,17 +4,13 @@ import os
 
 app = Flask(__name__, template_folder="templates")
 
-# Upewniamy się, że zmienna DATABASE_URL istnieje
-if not os.getenv("DATABASE_URL"):
-    raise ValueError("DATABASE_URL is not set. Please configure it in Render environment variables.")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# Używamy wartości domyślnej, jeśli DATABASE_URL nie jest ustawione
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///warehouse.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
 
 db = SQLAlchemy(app)
 
-# Tworzymy tabele, jeśli jeszcze nie istnieją
 with app.app_context():
     db.create_all()
 
