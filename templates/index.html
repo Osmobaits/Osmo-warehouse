@@ -100,25 +100,22 @@
         }
 
         async function fetchCategories() {
-            const response = await fetch('/categories');
-            const categories = await response.json();
-            document.getElementById('category-list').innerHTML = categories.map(c => `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    ${c.name}
-                    <div>
-                        <button class="btn btn-sm btn-warning" onclick="editCategory(${c.id}, '${encodeURIComponent(c.name)}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </li>`
-            ).join('');
-            document.getElementById('category-select').innerHTML = categories.map(c => `
-                <option value="${c.id}">${c.name}</option>`
-            ).join('');
-        }
+        const response = await fetch('/categories');
+        const categories = await response.json();
+        document.getElementById('category-list').innerHTML = categories.map(c => `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="/products?category_id=${c.id}" class="text-decoration-none text-primary">${c.name}</a>
+                <div>
+                    <button class="btn btn-sm btn-warning" onclick="editCategory(${c.id}, '${encodeURIComponent(c.name)}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </li>`
+        ).join('');
+    }
 
         async function fetchProducts() {
             const response = await fetch('/products');
