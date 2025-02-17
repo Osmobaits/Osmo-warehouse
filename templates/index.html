@@ -101,7 +101,8 @@
 
         async function fetchCategories() {
         const response = await fetch('/categories');
-        const categories = await response.json();
+        let categories = await response.json();
+        categories.sort((a, b) => a.id - b.id); // Sortowanie po ID rosnąco
         document.getElementById('category-list').innerHTML = categories.map(c => `
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="#category-${c.id}" class="text-primary text-decoration-none">${c.name}</a>
@@ -119,8 +120,13 @@
 
     async function fetchProducts() {
         const response = await fetch('/products');
-        const productsByCategory = await response.json();
-        document.getElementById('product-list').innerHTML = Object.keys(productsByCategory).map(category => `
+        let productsByCategory = await response.json();
+        const sortedKeys = Object.keys(productsByCategory).sort((a, b) => {
+            const idA = productsByCategory[a][0]?.category_id || 0;
+            const idB = productsByCategory[b][0]?.category_id || 0;
+            return idA - idB;
+        });
+        document.getElementById('product-list').innerHTML = sortedKeys.map(category => `
             <div class="category-container" id="category-${productsByCategory[category][0]?.category_id}">
                 <h4>${category}</h4>
                 <table class="table table-bordered">
@@ -149,7 +155,6 @@
                 </table>
             </div>`).join('');
     }
-
         async function addCategory() {
             const name = document.getElementById('category-name').value;
             if (!name) return alert("Category name cannot be empty!");
