@@ -104,7 +104,6 @@
         let categories = await response.json();
         categories.sort((a, b) => a.id - b.id);
 
-        // Wypełnianie menu kategorii
         const categorySelect = document.getElementById('category-select');
         if (categorySelect) {
             categorySelect.innerHTML = categories.map(c => `
@@ -149,7 +148,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${productsByCategory[category].map(p => `
+                        ${productsByCategory[category].sort((a, b) => a.name.localeCompare(b.name)).map(p => `
                             <tr>
                                 <td>${p.name}</td>
                                 <td>${p.quantity}</td>
