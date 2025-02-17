@@ -102,10 +102,18 @@
         async function fetchCategories() {
         const response = await fetch('/categories');
         let categories = await response.json();
-        categories.sort((a, b) => a.id - b.id); 
+        categories.sort((a, b) => a.id - b.id);
         document.getElementById('category-list').innerHTML = categories.map(c => `
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="#category-${c.id}" class="text-primary text-decoration-none">${c.name}</a>
+                <div>
+                    <button class="btn btn-sm btn-warning" onclick="editCategory(${c.id}, '${encodeURIComponent(c.name)}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </li>`).join('');
     }
 
@@ -144,8 +152,9 @@
                             </tr>`).join('')}
                     </tbody>
                 </table>
-                <a href="#" class="btn btn-secondary mt-2" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">Back</a>
+                <a href="#category-list" class="btn btn-secondary mt-2">Back</a>
             </div>`).join('');
+    }
     }
         async function addCategory() {
             const name = document.getElementById('category-name').value;
