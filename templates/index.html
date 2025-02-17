@@ -103,6 +103,14 @@
         const response = await fetch('/categories');
         let categories = await response.json();
         categories.sort((a, b) => a.id - b.id);
+
+        // Wypełnianie menu kategorii
+        const categorySelect = document.getElementById('category-select');
+        if (categorySelect) {
+            categorySelect.innerHTML = categories.map(c => `
+                <option value="${c.id}">${c.name}</option>`).join('');
+        }
+
         document.getElementById('category-list').innerHTML = categories.map(c => `
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="#category-${c.id}" class="text-primary text-decoration-none">${c.name}</a>
@@ -119,6 +127,10 @@
 
     async function fetchProducts() {
         const response = await fetch('/products');
+        if (!response.ok) {
+            document.getElementById('product-list').innerHTML = '<p class="text-danger">Failed to load products.</p>';
+            return;
+        }
         let productsByCategory = await response.json();
         const sortedCategories = Object.keys(productsByCategory).sort((a, b) => {
             const idA = productsByCategory[a][0]?.category_id || 0;
@@ -155,6 +167,11 @@
                 <a href="#category-list" class="btn btn-secondary mt-2">Back</a>
             </div>`).join('');
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchCategories();
+        fetchProducts();
+    });
     
         async function addCategory() {
             const name = document.getElementById('category-name').value;
