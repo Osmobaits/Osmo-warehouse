@@ -102,31 +102,22 @@
         async function fetchCategories() {
         const response = await fetch('/categories');
         let categories = await response.json();
-        categories.sort((a, b) => a.id - b.id); // Sortowanie po ID rosnąco
+        categories.sort((a, b) => a.id - b.id); 
         document.getElementById('category-list').innerHTML = categories.map(c => `
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="#category-${c.id}" class="text-primary text-decoration-none">${c.name}</a>
-                <div>
-                    <button class="btn btn-sm btn-warning" onclick="editCategory(${c.id}, '${encodeURIComponent(c.name)}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </li>`
-        ).join('');
+            </li>`).join('');
     }
 
     async function fetchProducts() {
         const response = await fetch('/products');
         let productsByCategory = await response.json();
-        const sortedKeys = Object.keys(productsByCategory).sort((a, b) => {
+        const sortedCategories = Object.keys(productsByCategory).sort((a, b) => {
             const idA = productsByCategory[a][0]?.category_id || 0;
             const idB = productsByCategory[b][0]?.category_id || 0;
             return idA - idB;
         });
-        document.getElementById('product-list').innerHTML = sortedKeys.map(category => `
+        document.getElementById('product-list').innerHTML = sortedCategories.map(category => `
             <div class="category-container" id="category-${productsByCategory[category][0]?.category_id}">
                 <h4>${category}</h4>
                 <table class="table table-bordered">
@@ -153,6 +144,7 @@
                             </tr>`).join('')}
                     </tbody>
                 </table>
+                <a href="#" class="btn btn-secondary mt-2" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">Back</a>
             </div>`).join('');
     }
         async function addCategory() {
