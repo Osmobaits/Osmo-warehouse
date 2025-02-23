@@ -17,6 +17,11 @@
                     <input type="text" id="username" class="form-control mb-2" required>
                     <label for="password">Password</label>
                     <input type="password" id="password" class="form-control mb-3" required>
+                    <label for="role">Wybierz sekcję:</label>
+                    <select id="role" class="form-control mb-3">
+                        <option value="warehouse">Magazyn</option>
+                        <option value="orders">Zamówienia</option>
+                    </select>
                     <button class="btn btn-primary w-100" onclick="login()">Login</button>
                 </div>
             </div>
@@ -27,11 +32,16 @@
         function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
+            const role = document.getElementById("role").value;
 
             // Symulacja logowania
             if (username === "admin" && password === "password") {
                 localStorage.setItem("loggedIn", "true");
-                window.location.href = "index.html";
+                if (role === "warehouse") {
+                    window.location.href = "index.html";
+                } else {
+                    window.location.href = "index1.html";
+                }
             } else {
                 alert("Invalid credentials! Try again.");
             }
